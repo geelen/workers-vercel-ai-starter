@@ -1,6 +1,11 @@
 import type { Message } from 'ai';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
+import { env } from 'cloudflare:workers'
+
+const google = createGoogleGenerativeAI({
+  apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY
+})
 
 type JsonBody = {
   id: string;
@@ -15,7 +20,7 @@ export default {
       case "/api/chat": {
         const { messages } = await request.json<JsonBody>();
         const model = google('gemini-1.5-pro-latest', {
-          useSearchGrounding: true
+          useSearchGrounding: true,
         });
         const result = streamText({ model, messages });
         return result.toDataStreamResponse();
